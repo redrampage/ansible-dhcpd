@@ -142,7 +142,11 @@ host {{ host.hostname }}-hw{{ loop.index }} {
         option host-name "{{ host.hostname }}";
 {% endif %}
 {% if host.address is defined and host.address %}
+{% if dhcpd_ipversion is defined and dhcpd_ipversion == '6' %}
+        fixed-address6 {{ host.address }};
+{% else %}
         fixed-address {{ host.address }};
+{% endif %}
 {% endif %}
 }
 {% endfor %}
@@ -153,6 +157,9 @@ host {{ host.hostname }} {
 {% endif %}
 {% if host.ethernet is defined and host.ethernet %}
         hardware ethernet {{ host.ethernet }};
+{% endif %}
+{% if not host.options is defined or (host.options and not 'host-name' in host.options) %}
+        option host-name "{{ host.hostname }}";
 {% endif %}
 {% if host.address is defined and host.address %}
 {% if dhcpd_ipversion is defined and dhcpd_ipversion == '6' %}
